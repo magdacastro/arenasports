@@ -1,0 +1,7 @@
+{
+  "name": "veganature",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
