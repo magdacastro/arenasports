@@ -35,7 +35,7 @@ class UserController extends Controller
      */
     public function register(CreateUserRequest $request): JsonResponse
     {
-        $resource = User::firstOrCreate(['email' => $request->email], $request->only('name', 'email') + [
+        $resource = User::firstOrCreate(['email' => $request->email], $request->only('name', 'email', 'payment', 'phone') + [
             'password' => Hash::make($request->password)
         ]);
 

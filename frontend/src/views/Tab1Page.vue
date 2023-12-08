@@ -19,13 +19,7 @@
 </template>
 
 <script lang="ts">
-import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-} from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from "@ionic/vue";
 import SportsFacilities from "@/components/SportsFacilities.vue";
 export default {
   components: {
@@ -40,6 +34,17 @@ export default {
     return {
       action: "index",
     };
+  },
+  ionViewWillEnter() {
+    const token = window.localStorage.token;
+
+    const interval = setInterval(() => {
+      if (!token) {
+        this.$router.push("/tabs/auth/register");
+      }
+
+      clearInterval(interval);
+    }, 100);
   },
   created() {
     const { action } = this.$route.query;

@@ -7,26 +7,16 @@
         </ion-col>
       </ion-row>
       <ion-grid class="mt-12">
-          <ion-row>
-            <ion-col class="ion-text-center">
-              <ion-text color="medium">
-                <h2><strong>BEM VINDO</strong></h2>
-              </ion-text>
-            </ion-col>
-          </ion-row>
+        <ion-row>
+          <ion-col class="ion-text-center">
+            <ion-text color="medium">
+              <h2><strong>BEM VINDO</strong></h2>
+            </ion-text>
+          </ion-col>
+        </ion-row>
 
-        <ion-input
-          label="Email:"
-          type="email"
-          placeholder="voce@email.com"
-          v-model="form.email"
-        ></ion-input>
-        <ion-input
-          label="Senha:"
-          type="password"
-          placeholder="********"
-          v-model="form.password"
-        ></ion-input>
+        <ion-input label="Email:" type="email" placeholder="voce@email.com" v-model="form.email"></ion-input>
+        <ion-input label="Senha:" type="password" placeholder="********" v-model="form.password"></ion-input>
 
         <div class="btn-login mt-12">
           <ion-button @click="login">Entrar</ion-button>
@@ -34,9 +24,7 @@
 
         <ion-row>
           <ion-col class="ion-text-center">
-            <ion-text color="primary" @click="register()">
-              Não possui cadastro? Clique aqui!</ion-text
-            >
+            <ion-text color="primary" @click="register()"> Não possui cadastro? Clique aqui!</ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -50,23 +38,11 @@ import { defineComponent } from "vue";
 import { NavigationFailure } from "vue-router";
 import { toastController } from "@ionic/vue";
 
-import {
-  IonCol,
-  IonContent,
-  IonGrid,
-  IonPage,
-  IonRow,
-  IonText,
-  IonTitle,
-  IonInput,
-  IonButton,
-} from "@ionic/vue";
+import { IonCol, IonContent, IonGrid, IonPage, IonRow, IonText, IonTitle, IonInput, IonButton } from "@ionic/vue";
 
-//import { AuthController } from "@/http/controllers/AuthController";
-//import { LoginKeyboardEnterEvent } from "@/contracts/http/AuthController";
-
-//import { HTTP_OK } from "@/constants/http/Response";
 import { AxiosError } from "axios";
+
+import axios from "@/services/axios";
 
 export default defineComponent({
   name: "Login",
@@ -96,65 +72,27 @@ export default defineComponent({
     clearCache() {
       localStorage.clear();
     },
-    /*async set(event: LoginKeyboardEnterEvent) {
-      this.form[event.id] = event.content;
-    },*/
     async reloadPage() {
       this.$router.go(0);
     },
     async login() {
       this.clearCache();
 
-      /*new AuthController()
-        .login(this.form)
-        .then((response: any) => {
-          const { token }: { token: string } = response!.data!;
-          const { name, email }: { name: string; email: string } =
-            response!.data!.user!;
+      axios
+        .post("v1/auth/login", this.form)
+        .then(({ data, status }) => {
+          if (status === 200) {
+            this.toast("Usuário logado com sucesso!", 3000);
 
-          if (response.status === HTTP_OK) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify({ name, email }));
+            window.localStorage.setItem("token", data.token);
 
-            this.$router.push("/system/home");
+            this.$router.push("/tabs/tab1");
           }
         })
-        .catch(async (err: AxiosError) => {
-          interface AuthError {
-            email?: Array<string>;
-            password?: Array<string>;
-          }
-
-          const errors: string | AuthError = err.response!.data!.error;
-
-          if (typeof errors === "string") {
-            this.toast(errors, 3000);
-          }
-
-          if (typeof errors === "object") {
-            if (typeof errors.email === "object") {
-              this.toast(
-                errors.email.find((n: string) => n) ??
-                  "Não foi possível encontrar o e-mail!",
-                3000
-              );
-            }
-
-            if (typeof errors.password === "object") {
-              this.toast(
-                errors.password.find((n: string) => n) ??
-                  "A senha não está em um formato válido!",
-                3000
-              );
-            }
-          }
-        });*/
-
-      console.log(this.form);
+        .catch(({ response: { data } }) => {
+          this.toast(data.message, 4000);
+        });
     },
-    /* async forgot(): Promise<NavigationFailure | void | undefined> {
-      return this.$router.push('/auth/restore/mailer');
-    },*/
     async register(): Promise<NavigationFailure | void | undefined> {
       return this.$router.push("/tabs/auth/register");
     },
@@ -181,6 +119,6 @@ ion-button {
 
 .title {
   display: flex;
-    justify-content: center;
+  justify-content: center;
 }
 </style>

@@ -15,56 +15,23 @@
               </ion-text>
             </ion-col>
           </ion-row>
-          <ion-input
-            label="Nome:"
-            type="text"
-            placeholder="Joana Doe"
-            v-model="form.name"
-          ></ion-input>
-          <ion-input
-            label="Telefone:"
-            type="text"
-            placeholder="(51) 9 9999 3099"
-            v-model="form.phone"
-          ></ion-input>
+          <ion-input label="Nome:" type="text" placeholder="Joana Doe" v-model="form.name"></ion-input>
+          <ion-input label="Telefone:" type="text" placeholder="(51) 9 9999 3099" v-model="form.phone"></ion-input>
 
-          <ion-select
-            v-model="payment"
-            label="Forma de Pagamento:"
-            placeholder="Escolha"
-          >
-            <ion-select-option value="1">Pix</ion-select-option>
-            <ion-select-option value="2">Cartão</ion-select-option>
-            <ion-select-option value="3">Boleto</ion-select-option>
-            <ion-select-option value="4">Dinheiro</ion-select-option>
+          <ion-select v-model="form.payment" label="Forma de Pagamento:" placeholder="Escolha">
+            <ion-select-option value="pix">Pix</ion-select-option>
+            <ion-select-option value="cartao">Cartão</ion-select-option>
+            <ion-select-option value="boleto">Boleto</ion-select-option>
+            <ion-select-option value="dinheiro">Dinheiro</ion-select-option>
           </ion-select>
 
-          <ion-input
-            label="Email:"
-            type="email"
-            placeholder="voce@email.com"
-            v-model="form.email"
-          ></ion-input>
-          <ion-input
-            label="Senha:"
-            type="password"
-            placeholder="********"
-            v-model="form.password"
-          ></ion-input>
-          <ion-input
-            label="Repetir Senha:"
-            type="password"
-            placeholder="********"
-            v-model="form.password_confirmation"
-          ></ion-input>
+          <ion-input label="Email:" type="email" placeholder="voce@email.com" v-model="form.email"></ion-input>
+          <ion-input label="Senha:" type="password" placeholder="********" v-model="form.password"></ion-input>
+          <ion-input label="Repetir Senha:" type="password" placeholder="********" v-model="form.password_confirmation"></ion-input>
 
           <ion-col class="flex flex-col items-center justify-center">
             <ion-text class="min-w-full text-center" color="danger">
-              <span
-                class="text-xs p-0"
-                v-if="errors.password.status === false"
-                >{{ errors.password.message }}</span
-              >
+              <span class="text-xs p-0" v-if="errors.password.status === false">{{ errors.password.message }}</span>
             </ion-text>
           </ion-col>
 
@@ -74,9 +41,7 @@
         </form>
         <ion-row>
           <ion-col class="ion-text-center">
-            <ion-text color="primary" @click="login()">
-              Já possui cadastro? Clique aqui!</ion-text
-            >
+            <ion-text color="primary" @click="login()"> Já possui cadastro? Clique aqui!</ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -91,25 +56,9 @@ import { toastController } from "@ionic/vue";
 
 import { AxiosError } from "axios";
 
-//import { AuthController } from "@/http/controllers/AuthController";
+import axios from "@/services/axios";
 
-//import { RegisterKeyboardEnterEvent } from "@/contracts/http/AuthController";
-
-//import { HTTP_CREATED } from "@/constants/http/Response";
-
-import {
-  IonCol,
-  IonContent,
-  IonPage,
-  IonRow,
-  IonText,
-  IonGrid,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonItem,
-  IonButton,
-} from "@ionic/vue";
+import { IonCol, IonContent, IonPage, IonRow, IonText, IonGrid, IonInput, IonSelect, IonSelectOption, IonItem, IonButton } from "@ionic/vue";
 import { NavigationFailure } from "vue-router";
 
 export default defineComponent({
@@ -147,23 +96,8 @@ export default defineComponent({
     IonButton,
   },
   methods: {
-    /* async set(event: RegisterKeyboardEnterEvent) {
-      this.form[event.id] = event.content;
-    }, */
     filled(): boolean {
-      return (
-        this.form.name.length > 0 &&
-        this.form.email.length > 0 &&
-        this.form.password.length > 0 &&
-        this.form.password_confirmation.length > 0
-      );
-    },
-    validateName(event: any) {
-      const regexNum = /[0-9]/g;
-      const validate = this.form.name;
-      if (validate.match(regexNum)) {
-        event.target.value = event.target.value.slice(0, -1);
-      }
+      return this.form.name.length > 0 && this.form.email.length > 0 && this.form.password.length > 0 && this.form.password_confirmation.length > 0;
     },
     validatePassword() {
       const password = this.form.password;
@@ -179,57 +113,20 @@ export default defineComponent({
       }
     },
     async submit() {
-      /*if (this.submitted === true || this.filled() === false) {
-        return false;
-      }
+      axios
+        .post("v1/auth/register", this.form)
+        .then(({ status }) => {
+          if (status === 201) {
+            this.toast("Usuário criado som sucesso!", 3000);
 
-      new AuthController()
-        .register(this.form)
-        .then((response: any) => {
-          if (response.status === HTTP_CREATED) {
-            this.form = {
-              name: "",
-              email: "",
-              password: "",
-              // eslint-disable-next-line @typescript-eslint/camelcase
-              password_confirmation: "",
-            };
-
-            this.submitted = false;
-
-            this.toast("Usuário cadastrado!", 3000).then(() => {
-              setTimeout(() => {
-                this.$router.push("/auth/login");
-              }, 3000);
-            });
-
-            this.submitted = true;
+            this.$router.push("/tabs/auth/login");
           }
         })
-        .catch(async (err: AxiosError) => {
-          if (typeof err.response === typeof {}) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const errors = err.response!.data!.error ?? [];
-
-            if (typeof errors.email !== typeof undefined) {
-              errors.email.map(async (message: string) => {
-                this.toast(message, 2000);
-              });
-            }
-
-            if (typeof errors.password !== typeof undefined) {
-              errors.password.map(async (message: string) => {
-                this.toast(message, 2000);
-              });
-            }
+        .catch((error) => {
+          if (error instanceof AxiosError) {
+            this.toast(error.response!.data.message, 3000);
           }
-
-          this.submitted = false;
-        })
-        .finally(function () {
-          //
-        });*/
-      console.log(this.form);
+        });
     },
     async toast(message: string, duration: number): Promise<void> {
       const toast = await toastController.create({
