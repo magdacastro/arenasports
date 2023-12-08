@@ -9,33 +9,15 @@
       <ion-list>
         <ion-item href="/tabs/create" button detail="true">
           <ion-label>
-            <h3>Cadastrar produto</h3>
-            <p>Cadastre aqui algo interessante</p>
+            <h3>Agendar um horário</h3>
+            <p>Agende aqui um horário na quadra</p>
           </ion-label>
         </ion-item>
         <ion-item href="/tabs/tab1?action=destroy" button detail="true">
           <ion-label>
-            <h3>Remover produto</h3>
-            <p>Remova o produto da listagem</p>
+            <h3>Cancelar horário</h3>
+            <p>Cancele um horário marcado da listagem</p>
           </ion-label>
-        </ion-item>
-      </ion-list>
-    </div>
-    <div>
-      <div class="main-title">
-        <ion-header>
-          <ion-label>Notificações</ion-label>
-        </ion-header>
-      </div>
-      <ion-list>
-        <ion-item>
-          <ion-toggle :checked="false">Alerta de promoções</ion-toggle>
-        </ion-item>
-        <ion-item>
-          <ion-toggle :checked="false">Alerta de produtos novos</ion-toggle>
-        </ion-item>
-        <ion-item>
-          <ion-toggle :checked="false">Impulsionar publicações</ion-toggle>
         </ion-item>
       </ion-list>
     </div>

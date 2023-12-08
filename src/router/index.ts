@@ -30,6 +30,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'schedule/:id',
         component: () => import('@/views/SchedulePage.vue')
+      },
+      {
+        path: 'auth/login',
+        component: () => import('@/views/auth/LoginPage.vue')
+      },
+      {
+        path: 'auth/register',
+        component: () => import('@/views/auth/RegisterPage.vue')
       }
     ]
   }
