@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePeriodRequest;
 use App\Http\Requests\UpdatePeriodRequest;
 use App\Models\Period;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class PeriodController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResource
     {
-        //
+        return JsonResource::collection(
+            Period::all()
+        );
     }
 
     /**

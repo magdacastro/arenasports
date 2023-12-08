@@ -19,14 +19,10 @@
         </ion-toolbar>
       </ion-header>
       <ion-content>
-        <ion-list v-for="schedule in schedules" :key="schedule.id">
-          <ion-item @click.prevent="($e) => setPeriodTime($e, schedule.id)">
-            <ion-checkbox
-              slot="start"
-              aria-label="Task name"
-              :checked="has(schedule.id)"
-            ></ion-checkbox>
-            <ion-label>{{ schedule.period }}</ion-label>
+        <ion-list v-for="period in periods" :key="period.id">
+          <ion-item @click.prevent="($e) => setPeriodTime($e, period.id)">
+            <ion-checkbox slot="start" aria-label="Task name" :checked="has(period.id)"></ion-checkbox>
+            <ion-label>{{ period.time }}</ion-label>
           </ion-item>
         </ion-list>
 
@@ -42,85 +38,22 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
+import axios from "@/services/axios";
 import { Toast } from "@capacitor/toast";
 
-import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonItem,
-  IonThumbnail,
-  IonLabel,
-  IonList,
-  IonCheckbox,
-  IonInput,
-  alertController,
-} from "@ionic/vue";
+import { IonBackButton, IonButton, IonButtons, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonItem, IonThumbnail, IonLabel, IonList, IonCheckbox, IonInput, alertController } from "@ionic/vue";
+
+type Period = {
+  id: number;
+  time: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export default {
   data() {
     return {
-      schedules: [
-        {
-          id: 1,
-          period: "08h - 09h",
-        },
-        {
-          id: 2,
-          period: "09h - 10h",
-        },
-        {
-          id: 3,
-          period: "10h - 11h",
-        },
-        {
-          id: 4,
-          period: "11h - 12h",
-        },
-        {
-          id: 5,
-          period: "12h - 13h",
-        },
-        {
-          id: 6,
-          period: "13h - 14h",
-        },
-        {
-          id: 7,
-          period: "14h - 15h",
-        },
-        {
-          id: 8,
-          period: "15h - 16h",
-        },
-        {
-          id: 9,
-          period: "16h - 17h",
-        },
-        {
-          id: 10,
-          period: "17h - 18h",
-        },
-        {
-          id: 11,
-          period: "18h - 19h",
-        },
-        {
-          id: 12,
-          period: "19h - 20h",
-        },
-      ],
+      periods: [] as Period[],
       selected: new Set(),
     };
   },
@@ -146,6 +79,16 @@ export default {
     IonInput,
     alertController,
   },
+  created() {
+    axios
+      .get("v1/periods")
+      .then(({ data: { data } }: { data: { data: Period[] } }) => {
+        this.periods = data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },
   methods: {
     schedulePeriod() {
       const { id } = this.$route.params;
@@ -155,9 +98,13 @@ export default {
         periods: Array.from(this.selected),
       };
 
-      axios.post("", payload);
-      this.showHelloToast("Horário(s) agendado(s) com sucesso!");
-      this.$router.push('/tab1');
+      axios
+        .post("", payload)
+        .then((response) => {
+          this.showHelloToast("Horário(s) agendado(s) com sucesso!");
+          this.$router.push("/tab1");
+        })
+        .catch((error) => {});
     },
     setPeriodTime($e: PointerEvent, id: number): void {
       if (this.has(id)) {

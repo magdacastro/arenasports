@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\SquadController;
+use App\Http\Controllers\SquadPeriodController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,4 +29,6 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::apiResource('squads', SquadController::class);
+    Route::apiResource('periods', PeriodController::class);
+    Route::apiResource('squad-periods', SquadPeriodController::class);
 });
