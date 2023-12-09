@@ -33,7 +33,7 @@
             </ion-select>
           </ion-item>
         </ion-list>
-        <ion-list v-for="period in periods" :key="period.id">
+        <ion-list v-for="period in getPeriods()" :key="period.id">
           <ion-item @click.prevent="($e) => setPeriodTime($e, period.id)">
             <ion-checkbox
               slot="start"
@@ -134,6 +134,9 @@ export default {
       });
   },
   methods: {
+    getPeriods(): Period[] {
+      return this.periods;
+    },
     schedulePeriod() {
       const { id } = this.$route.params;
       const payload = {
@@ -165,13 +168,72 @@ export default {
       }
     },
     setPeriodTime($e: PointerEvent, id: number): void {
+      const period = this.periods.find((period) => period.id === id);
+      if (!period) {
+        $e!.target!.checked = false;
+        return;
+      }
+
+      if (!this.date) {
+        this.presentAlert("Você deve informar uma data.");
+        $e!.target!.checked = false;
+        return;
+      }
+      const selected = this.selected.has(id);
+      if (selected) {
+        function convertDateFormat(inputDate) {
+          const parts = inputDate.split("-");
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, "0");
+            const month = parts[1].padStart(2, "0");
+            const year = parts[2];
+            return `${year}-${month}-${day}`;
+          } else {
+            console.error(
+              "Formato de data inválido. Use o formato dd-mm-yyyy."
+            );
+            return null;
+          }
+        }
+
+        const convertedDate = convertDateFormat(this.date);
+
+        if (convertedDate !== null) {
+          const hour = period.time
+            .slice(0, period.time.indexOf("-"))
+            .trim()
+            .match(/[0-9]/g)
+            .map((str: string) => parseInt(str))
+            .filter((n: number) => n)
+            .find((n: number) => n);
+          const date = new Date(`${convertedDate} ${hour}:0:0`);
+          const difference = date.getTime() - new Date().getTime();
+          if (difference < 0) {
+            this.presentAlert("O evento já ocorreu.");
+            $e!.target!.checked = true;
+            return;
+          }
+
+          const ms = difference;
+          const s = ms / 1000;
+
+          if (s < 86400) {
+            this.presentAlert(
+              "O evento não pode ser cancelado com menos de 24 horas de antecedêcia."
+            );
+            $e!.target!.checked = true;
+            return;
+          }
+        }
+      }
+
       if (this.has(id)) {
         this.selected.delete(id);
       } else {
         if (this.selected.size < 4) {
           this.selected.add(id);
         } else {
-          this.presentAlert();
+          this.presentAlert("Você pode marcar apenas 4 horários!");
 
           $e!.target!.checked = false;
         }
@@ -225,9 +287,9 @@ export default {
     has(id: number): boolean {
       return this.selected.has(id);
     },
-    async presentAlert() {
+    async presentAlert(message: string) {
       const alert = await alertController.create({
-        message: "Você pode marcar apenas 4 horários!",
+        message,
         buttons: ["Fechar"],
       });
 
