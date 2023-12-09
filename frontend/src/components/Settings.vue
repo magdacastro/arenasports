@@ -7,13 +7,19 @@
         </ion-header>
       </div>
       <ion-list>
-        <ion-item href="/tabs/create" button detail="true">
+        <ion-item href="/tabs/tab1" button detail="true">
           <ion-label>
             <h3>Agendar um horário</h3>
             <p>Agende aqui um horário na quadra</p>
           </ion-label>
         </ion-item>
-        <ion-item href="/tabs/tab1?action=destroy" button detail="true">
+        <ion-item href="" button detail="true">
+          <ion-label>
+            <h3>Meus horários</h3>
+            <p>Visualizar sua agenda de horários</p>
+          </ion-label>
+        </ion-item>
+        <ion-item href="/tabs/tab1" button detail="true">
           <ion-label>
             <h3>Cancelar horário</h3>
             <p>Cancele um horário marcado da listagem</p>

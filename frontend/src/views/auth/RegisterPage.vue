@@ -41,7 +41,7 @@
         </form>
         <ion-row>
           <ion-col class="ion-text-center">
-            <ion-text color="primary" @click="login()"> Já possui cadastro? Clique aqui!</ion-text>
+            <ion-text color="primary" @click="goToLogin()"> Já possui cadastro? Clique aqui!</ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -136,7 +136,7 @@ export default defineComponent({
 
       toast.present();
     },
-    async back(): Promise<NavigationFailure | void | undefined> {
+    async goToLogin(): Promise<NavigationFailure | void | undefined> {
       return this.$router.push("/auth/login");
     },
   },

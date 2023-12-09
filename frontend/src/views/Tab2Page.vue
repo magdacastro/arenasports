@@ -10,7 +10,7 @@
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title>Favoritos</ion-title>
+          <ion-title>Meus Horários</ion-title>
         </ion-toolbar>
       </ion-header>
       
