@@ -137,7 +137,7 @@ export default defineComponent({
       toast.present();
     },
     async goToLogin(): Promise<NavigationFailure | void | undefined> {
-      return this.$router.push("/auth/login");
+      return this.$router.push("/tabs/auth/login");
     },
   },
 });

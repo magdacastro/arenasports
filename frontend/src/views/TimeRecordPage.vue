@@ -18,8 +18,8 @@
           </div>
         </ion-toolbar>
       </ion-header>
-      <ion-content>
-        <TimeRecord />
+      <ion-content v-if="date">
+        <TimeRecord :date="date" :squad_id="squad_id" />
       </ion-content>
     </ion-content>
   </ion-page>
@@ -28,7 +28,7 @@
 <script lang="ts">
 import axios from "axios";
 import { Toast } from "@capacitor/toast";
-import TimeRecord from "@/components/TimeRecord.vue"
+import TimeRecord from "@/components/TimeRecord.vue";
 
 import {
   IonBackButton,
@@ -52,13 +52,19 @@ import {
   IonInput,
   alertController,
 } from "@ionic/vue";
-import TimeRecordVue from '../components/TimeRecord.vue';
 
 export default {
   data() {
     return {
-      
+      date: null,
+      squad_id: null,
     };
+  },
+  created() {
+    const { date, squad_id } = this.$route.query;
+
+    this.squad_id = parseInt(squad_id);
+    this.date = date;
   },
   components: {
     IonBackButton,
@@ -80,7 +86,7 @@ export default {
     IonList,
     IonCheckbox,
     IonInput,
+    TimeRecord,
   },
-
 };
 </script>

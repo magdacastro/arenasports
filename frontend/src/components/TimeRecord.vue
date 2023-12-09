@@ -1,24 +1,29 @@
 <template>
   <div class="ion-padding">
     <ion-row>
-      <ion-col size="6">
+      <ion-col size="12">
+        <ion-label>Data:</ion-label>
+        <ion-label>{{ date }}</ion-label>
+      </ion-col>
+
+      <ion-col size="12">
+        <ion-label>Quadra:</ion-label>
+        <ion-label>{{ squad_id }}</ion-label>
+      </ion-col>
+
+      <ion-col size="12">
         <ion-label>Horário(s):</ion-label>
         <ion-item v-for="period in periods" :key="period.id" detail="false">
-          <ion-label>{{ period.hour }}</ion-label>
+          <ion-label>{{ period.time }}</ion-label>
         </ion-item>
       </ion-col>
-      <ion-col size="6">
+      <ion-col size="12">
         <ion-item detail="false">
-          <ion-label>Preço por hora: R$ 100,00</ion-label>
+          <ion-label>Preço por hora: {{ formatNumberToMoney(100) }}</ion-label>
         </ion-item>
         <ion-item detail="false">
           <ion-label
             >Preço Total: R$ {{ moneyFormat.format(getSum()) }}
-          </ion-label>
-        </ion-item>
-        <ion-item detail="false">
-          <ion-label
-            >Você tem até dia "" para cancelar sua reserva gratuitamente. Após esta data, será necessário pagamento.
           </ion-label>
         </ion-item>
       </ion-col>
@@ -30,25 +35,66 @@
 </template>
 
 <script lang="ts">
-import { IonItem, IonCol, IonRow, IonLabel, alertController } from "@ionic/vue";
+import {
+  IonButton,
+  IonItem,
+  IonCol,
+  IonRow,
+  IonLabel,
+  alertController,
+} from "@ionic/vue";
 import { defineComponent } from "vue";
 import { Toast } from "@capacitor/toast";
+import axios from "@/services/axios";
 
 export default {
+  props: {
+    date: {
+      type: String,
+      required: true,
+    },
+    squad_id: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
-      periods: [
-        { id: 1, hour: "12h - 13h" },
-        { id: 2, hour: "13h - 14h" },
-        { id: 3, hour: "14h - 15h" },
-      ],
+      periods: [],
       moneyFormat: new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
       }),
     };
   },
+  created() {
+    const textSchedules = window.localStorage.schedules;
+    if (textSchedules) {
+      const schedules = JSON.parse(textSchedules);
+      const schedule = schedules.find(
+        (schedule) =>
+          schedule.squad_id === this.squad_id && schedule.date === this.date
+      );
+      const periods = schedule.periods;
+
+      axios
+        .get("v1/periods")
+        .then(({ status, data: { data } }) => {
+          if (status === 200) {
+            const periodsArray = data.filter((period) =>
+              periods.includes(period.id)
+            );
+
+            this.periods = periodsArray;
+          }
+        })
+        .catch();
+    }
+  },
   methods: {
+    formatNumberToMoney(money: Number): string {
+      return this.moneyFormat.format(money);
+    },
     getSum(): number {
       return this.periods.length * 100;
     },
@@ -62,7 +108,8 @@ export default {
     async confirmSchedule() {
       const confirm = await alertController.create({
         header: "Lembre-se!",
-        message: "Esteja no local na hora marcada! Caso contrário, será cobrado juros de sua conta.",
+        message:
+          "Esteja no local na hora marcada! Caso contrário, será cobrado juros de sua conta.",
         buttons: [
           {
             text: "Cancelar",
@@ -74,11 +121,9 @@ export default {
           {
             text: "OK",
             handler: () => {
-             /* axios.post().then((response) => {
-                if (response.status === 204) {
-                  this.showHelloToast("Agendado com sucesso");
-                }
-              });*/
+              this.showHelloToast("Agendado com sucesso");
+              
+              this.$router.push("/tabs/tab1");
             },
           },
         ],
@@ -88,6 +133,7 @@ export default {
     },
   },
   components: {
+    IonButton,
     IonItem,
     IonCol,
     IonRow,

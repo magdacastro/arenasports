@@ -38,6 +38,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'auth/register',
         component: () => import('@/views/auth/RegisterPage.vue')
+      },
+      {
+        path: 'time-record-page',
+        component: () => import('@/views/TimeRecordPage.vue')
       }
     ]
   }

@@ -46,7 +46,7 @@
 
         <div class="btn-schedule">
           <ion-button @click="schedulePeriod()">
-            <span v-if="!has()">Agendar</span>
+            <span v-if="!hasScheduleTime()">Agendar</span>
             <span v-else>Atualizar</span>
           </ion-button>
         </div>
@@ -137,15 +137,27 @@ export default {
     getPeriods(): Period[] {
       return this.periods;
     },
+    getSchedules() {
+      const schedulesText = window.localStorage.schedules;
+      const schedules = schedulesText ? JSON.parse(schedulesText) : [];
+      return schedules;
+    },
     schedulePeriod() {
       const { id } = this.$route.params;
+      // se não tiver preenchido nenhum horário, retornar aqui
+      if (this.selected.size === 0) {
+        this.presentAlert(
+          "É necessário informar ao menos um horário para prosseguir com o agendamento."
+        );
+        return;
+      }
+
       const payload = {
         squad_id: parseInt(id),
         periods: Array.from(this.selected),
         date: this.date,
       };
-      const schedulesText = window.localStorage.schedules;
-      const schedules = schedulesText ? JSON.parse(schedulesText) : [];
+      const schedules = this.getSchedules();
       const exists = schedules.find((schedule) => schedule.date === this.date);
 
       if (exists) {
@@ -166,6 +178,12 @@ export default {
 
         window.localStorage.setItem("schedules", JSON.stringify(schedules));
       }
+
+      const { squad_id } = exists || payload;
+
+      this.$router.push(
+        `/tabs/time-record-page?date=${this.date}&squad_id=${squad_id}`
+      );
     },
     setPeriodTime($e: PointerEvent, id: number): void {
       const period = this.periods.find((period) => period.id === id);
@@ -281,11 +299,22 @@ export default {
 
         if (todaySchedules) {
           this.selected = new Set(todaySchedules.periods);
+        } else {
+          this.selected = new Set();
         }
+      } else {
+        this.selected = new Set();
       }
     },
     has(id: number): boolean {
       return this.selected.has(id);
+    },
+    hasScheduleTime(): boolean {
+      const exists = this.getSchedules().filter(
+        (schedule) => schedule.date === this.date
+      );
+
+      return exists.length > 0 ? true : false;
     },
     async presentAlert(message: string) {
       const alert = await alertController.create({
